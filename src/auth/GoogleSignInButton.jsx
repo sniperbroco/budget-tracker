@@ -14,7 +14,6 @@ export function GoogleSignInButton({ onSignedIn }) {
       onError={() => {
         console.error('Google sign-in failed.')
       }}
-      useOneTap
     />
   )
 }

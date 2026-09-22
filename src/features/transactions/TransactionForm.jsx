@@ -23,6 +23,9 @@ export function TransactionForm({ transaction, categories, accounts, fixedType, 
     (category) => category.type === type && (!category.archived || category.id === categoryId),
   )
 
+  const selectedAccount = accounts.find((account) => account.id === accountId)
+  const isCreditAccount = selectedAccount?.type === 'credit'
+
   function handleTypeChange(nextType) {
     setType(nextType)
     setCategoryId('')
@@ -100,6 +103,12 @@ export function TransactionForm({ transaction, categories, accounts, fixedType, 
             <option key={account.id} value={account.id}>{account.name}</option>
           ))}
         </Select>
+      )}
+      {isCreditAccount && (
+        <p className="field-hint">
+          This is a credit card account — the linked debt&apos;s balance owed and available limit will update
+          automatically when you save.
+        </p>
       )}
       <Field
         id="txn-amount"

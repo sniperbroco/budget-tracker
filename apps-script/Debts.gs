@@ -71,10 +71,26 @@ var Debts = (function () {
     return SheetUtil.updateRowById(SHEET_NAME, payload.id, { archived: archived })
   }
 
-  // amount > 0 = a charge (balance grows; only meaningful for a credit
-  // card), amount < 0 = a payment (balance shrinks). Balance never drops
-  // below 0. This does not touch Transactions/Accounts — logging a debt
-  // payment here is independent of recording the cash-out transaction.
+  // Shared math for every balance-affecting event (a payment logged on the
+  // Debts page, or a transaction charged/refunded on a linked account).
+  // delta > 0 = a charge (balance grows, available limit shrinks),
+  // delta < 0 = a payment/refund (balance shrinks, available limit grows).
+  // Balance never drops below 0; available limit is clamped between 0 and
+  // the card's total spending limit (originalAmount) and only touched when
+  // the debt actually tracks one (loans leave it blank).
+  function applyDelta(debt, delta) {
+    var patch = { updatedAt: new Date().toISOString() }
+    patch.balance = Math.max(0, Number(debt.balance || 0) + delta)
+    if (debt.availableLimit !== '' && debt.availableLimit !== undefined && debt.availableLimit !== null) {
+      var limit = Number(debt.originalAmount) || Infinity
+      patch.availableLimit = Math.min(limit, Math.max(0, Number(debt.availableLimit || 0) - delta))
+    }
+    return patch
+  }
+
+  // amount > 0 = a charge, amount < 0 = a payment. This does not touch
+  // Transactions/Accounts — logging a debt payment here is independent of
+  // recording the cash-out transaction.
   function record(payload) {
     if (!payload.id) throw new Error('Missing id.')
     var delta = Number(payload.amount)
@@ -86,18 +102,13 @@ var Debts = (function () {
     })
     if (!debt) throw new Error('Debt not found: ' + payload.id)
 
-    var nextBalance = Math.max(0, Number(debt.balance || 0) + delta)
-    return SheetUtil.updateRowById(SHEET_NAME, payload.id, {
-      balance: nextBalance,
-      updatedAt: new Date().toISOString(),
-    })
+    return SheetUtil.updateRowById(SHEET_NAME, payload.id, applyDelta(debt, delta))
   }
 
   // Called from Transactions.gs whenever a transaction is created, edited,
-  // or deleted. delta > 0 grows the balance owed (a charge/expense),
-  // delta < 0 shrinks it (a refund/income). Only ever touches a revolving
-  // credit card debt explicitly linked to that account — everything else
-  // (loans, unlinked accounts) is untouched.
+  // or deleted. Only ever touches a revolving credit card debt explicitly
+  // linked to that account — everything else (loans, unlinked accounts) is
+  // untouched.
   function adjustBalanceForAccount(accountId, delta) {
     if (!accountId || !delta) return
     var debts = SheetUtil.readAllRows(SHEET_NAME)
@@ -105,11 +116,7 @@ var Debts = (function () {
       return row.kind === 'credit_card' && row.accountId === accountId && !row.archived
     })
     if (!debt) return
-    var nextBalance = Math.max(0, Number(debt.balance || 0) + delta)
-    SheetUtil.updateRowById(SHEET_NAME, debt.id, {
-      balance: nextBalance,
-      updatedAt: new Date().toISOString(),
-    })
+    SheetUtil.updateRowById(SHEET_NAME, debt.id, applyDelta(debt, delta))
   }
 
   function numberOrBlank(value) {
