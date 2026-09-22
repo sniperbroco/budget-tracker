@@ -1,0 +1,146 @@
+/*
+  Token values follow the project's data-viz color method (validated
+  categorical/status palette + chart chrome — see dataviz skill
+  references/palette.md). Income/expense use the fixed status "good"/
+  "critical" hexes (same value in both modes); text-contrast variants are
+  used for small colored text, the flatter mark value for chart fills.
+  Net/brand accent uses categorical slot 7 (violet).
+*/
+:root {
+  --text-h: #0b0b0b;
+  --text: #52514e;
+  --text-muted: #898781;
+
+  --surface: #fcfcfb;
+  --surface-muted: #f9f9f7;
+  --border: #e1e0d9;
+
+  --chart-grid: #e1e0d9;
+  --chart-axis: #c3c2b7;
+
+  --accent: #4a3aa7;
+  --accent-bg: rgba(74, 58, 167, 0.1);
+  --accent-border: rgba(74, 58, 167, 0.4);
+  --net: #4a3aa7;
+  --net-bg: rgba(74, 58, 167, 0.12);
+
+  --income: #006300;
+  --income-mark: #0ca30c;
+  --income-bg: rgba(12, 163, 12, 0.12);
+
+  --expense: #d03b3b;
+  --expense-mark: #d03b3b;
+  --expense-bg: rgba(208, 59, 59, 0.12);
+
+  --danger: #d03b3b;
+  --danger-bg: rgba(208, 59, 59, 0.1);
+
+  --shadow:
+    rgba(11, 11, 11, 0.1) 0 10px 24px -8px, rgba(11, 11, 11, 0.06) 0 4px 8px -2px;
+  --radius: 12px;
+  --radius-sm: 7px;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 16px/1.5 var(--sans);
+  letter-spacing: 0.1px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--surface-muted);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-h: #ffffff;
+    --text: #c3c2b7;
+    --text-muted: #898781;
+
+    --surface: #1a1a19;
+    --surface-muted: #0d0d0d;
+    --border: #2c2c2a;
+
+    --chart-grid: #2c2c2a;
+    --chart-axis: #383835;
+
+    --accent: #9085e9;
+    --accent-bg: rgba(144, 133, 233, 0.16);
+    --accent-border: rgba(144, 133, 233, 0.45);
+    --net: #9085e9;
+    --net-bg: rgba(144, 133, 233, 0.18);
+
+    --income: #0ca30c;
+    --income-mark: #0ca30c;
+    --income-bg: rgba(12, 163, 12, 0.16);
+
+    --expense: #e66767;
+    --expense-mark: #d03b3b;
+    --expense-bg: rgba(208, 59, 59, 0.16);
+
+    --danger: #e66767;
+    --danger-bg: rgba(208, 59, 59, 0.14);
+
+    --shadow:
+      rgba(0, 0, 0, 0.5) 0 10px 24px -8px, rgba(0, 0, 0, 0.3) 0 4px 8px -2px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--surface-muted);
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+h1 {
+  font-size: 20px;
+}
+h2 {
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+h3 {
+  font-size: 14px;
+}
+
+p {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
