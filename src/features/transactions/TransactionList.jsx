@@ -28,27 +28,29 @@ export function TransactionList({ transactions, categoriesById, accountsById, on
                 </span>
               )}
             </div>
-            <span className="transaction-date">{formatDateLabel(transaction.date)}</span>
-            <span className={`transaction-amount transaction-amount-${transaction.type}`}>
-              {transaction.type === 'expense' ? '-' : '+'}{formatCurrency(transaction.amount)}
-            </span>
-            <div className="row-actions">
-              <button
-                type="button"
-                className="icon-btn"
-                onClick={() => onEdit(transaction)}
-                aria-label="Edit transaction"
-              >
-                <Icon name="edit" size={16} />
-              </button>
-              <button
-                type="button"
-                className="icon-btn"
-                onClick={() => onDelete(transaction)}
-                aria-label="Delete transaction"
-              >
-                <Icon name="trash" size={16} />
-              </button>
+            <div className="transaction-trailing">
+              <span className="transaction-date">{formatDateLabel(transaction.date)}</span>
+              <span className={`transaction-amount transaction-amount-${transaction.type}`}>
+                {transaction.type === 'expense' ? '-' : '+'}{formatCurrency(transaction.amount)}
+              </span>
+              <div className="row-actions">
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={() => onEdit(transaction)}
+                  aria-label="Edit transaction"
+                >
+                  <Icon name="edit" size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={() => onDelete(transaction)}
+                  aria-label="Delete transaction"
+                >
+                  <Icon name="trash" size={16} />
+                </button>
+              </div>
             </div>
           </li>
         )

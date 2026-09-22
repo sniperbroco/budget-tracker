@@ -37,7 +37,7 @@
   width: 30px;
   height: 30px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, var(--accent), #2a78d6);
+  background: var(--accent);
   color: #fff;
   font-weight: 700;
   font-size: 15px;
@@ -268,31 +268,55 @@
   }
 }
 
-.summary-card-income {
-  border-color: var(--income-bg);
-  background: var(--income-bg);
-}
 .summary-card-income .summary-card-icon {
-  background: var(--surface);
+  background: var(--income-bg);
   color: var(--income);
 }
 
-.summary-card-expense {
-  border-color: var(--expense-bg);
-  background: var(--expense-bg);
-}
 .summary-card-expense .summary-card-icon {
-  background: var(--surface);
+  background: var(--expense-bg);
   color: var(--expense);
 }
 
-.summary-card-net {
-  border-color: var(--net-bg);
-  background: var(--net-bg);
-}
 .summary-card-net .summary-card-icon {
-  background: var(--surface);
+  background: var(--net-bg);
   color: var(--net);
+}
+
+/* ---------- Category breakdown legend (replaces the built-in chart
+   legend, which doesn't wrap gracefully past a handful of slices) ---------- */
+
+.category-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.category-chart-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.category-chart-legend-name {
+  flex: 1;
+  color: var(--text-h);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-chart-legend-value {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .summary-label {
@@ -579,26 +603,30 @@
   gap: 8px;
 }
 
+/*
+  Every list row (transactions, budgets, goals, debts, recurring rules)
+  shares this shape: a leading color swatch, a flexible "main" block that
+  absorbs remaining width, and trailing bits (amount/date/toggle/actions)
+  that stay grouped and wrap together as a unit on narrow screens. Plain
+  flexbox on purpose — a CSS grid here previously relied on `grid-area`
+  set on shared classes (.category-swatch, .transaction-amount,
+  .row-actions), which broke as soon as those classes were reused inside a
+  *different* grid shape (budget/recurring/goal rows) that didn't define
+  matching named areas, causing rows to silently overlap.
+*/
+
 .transaction-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-areas: 'swatch main amount' 'swatch date actions';
+  display: flex;
   align-items: center;
-  column-gap: 12px;
-  row-gap: 4px;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 12px 14px;
-
-  @media (min-width: 640px) {
-    grid-template-columns: auto 1fr auto auto auto;
-    grid-template-areas: 'swatch main date amount actions';
-  }
 }
 
 .category-swatch {
-  grid-area: swatch;
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -606,10 +634,18 @@
 }
 
 .transaction-main {
-  grid-area: main;
+  flex: 1 1 160px;
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+.transaction-trailing {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+  flex-wrap: wrap;
 }
 
 .transaction-category {
@@ -627,16 +663,15 @@
 }
 
 .transaction-date {
-  grid-area: date;
   font-size: 12px;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .transaction-amount {
-  grid-area: amount;
   font-weight: 700;
   font-size: 14px;
-  justify-self: end;
+  white-space: nowrap;
 }
 
 .transaction-amount-income {
@@ -648,10 +683,9 @@
 }
 
 .row-actions {
-  grid-area: actions;
   display: flex;
   gap: 2px;
-  justify-self: end;
+  flex-shrink: 0;
 }
 
 /* ---------- Categories ---------- */
@@ -723,10 +757,10 @@
 /* ---------- Budgets ---------- */
 
 .budget-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -734,6 +768,7 @@
 }
 
 .budget-main {
+  flex: 1 1 180px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -744,6 +779,13 @@
   font-weight: 600;
   color: var(--text-h);
   font-size: 14px;
+}
+
+.budget-trailing {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
 }
 
 .budget-figures {
@@ -1036,10 +1078,10 @@
 }
 
 .goal-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -1051,6 +1093,7 @@
 }
 
 .goal-main {
+  flex: 1 1 180px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1073,6 +1116,51 @@
   font-size: 13px;
 }
 
+/* ---------- Debts ---------- */
+
+.debt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.debt-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+
+  &.is-archived {
+    opacity: 0.6;
+  }
+}
+
+.debt-main {
+  flex: 1 1 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.debt-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.debt-figures {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 /* ---------- Recurring ---------- */
 
 .recurring-list {
@@ -1082,10 +1170,10 @@
 }
 
 .recurring-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto auto;
+  display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -1094,18 +1182,21 @@
   &.is-archived {
     opacity: 0.55;
   }
-
-  @media (max-width: 640px) {
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas: 'swatch main amount' 'toggle toggle actions';
-    row-gap: 8px;
-  }
 }
 
 .recurring-main {
+  flex: 1 1 160px;
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+.recurring-trailing {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+  flex-wrap: wrap;
 }
 
 .recurring-category {

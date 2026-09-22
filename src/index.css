@@ -18,22 +18,22 @@
   --chart-grid: #e1e0d9;
   --chart-axis: #c3c2b7;
 
-  --accent: #4a3aa7;
-  --accent-bg: rgba(74, 58, 167, 0.1);
-  --accent-border: rgba(74, 58, 167, 0.4);
-  --net: #4a3aa7;
-  --net-bg: rgba(74, 58, 167, 0.12);
+  --accent: #556fb5;
+  --accent-bg: rgba(85, 111, 181, 0.08);
+  --accent-border: rgba(85, 111, 181, 0.35);
+  --net: #556fb5;
+  --net-bg: rgba(85, 111, 181, 0.08);
 
-  --income: #006300;
-  --income-mark: #0ca30c;
-  --income-bg: rgba(12, 163, 12, 0.12);
+  --income: #15803d;
+  --income-mark: #16a34a;
+  --income-bg: rgba(21, 128, 61, 0.1);
 
-  --expense: #d03b3b;
-  --expense-mark: #d03b3b;
-  --expense-bg: rgba(208, 59, 59, 0.12);
+  --expense: #b91c1c;
+  --expense-mark: #dc2626;
+  --expense-bg: rgba(185, 28, 28, 0.1);
 
-  --danger: #d03b3b;
-  --danger-bg: rgba(208, 59, 59, 0.1);
+  --danger: #b91c1c;
+  --danger-bg: rgba(185, 28, 28, 0.08);
 
   --shadow:
     rgba(11, 11, 11, 0.1) 0 10px 24px -8px, rgba(11, 11, 11, 0.06) 0 4px 8px -2px;
@@ -67,22 +67,22 @@
     --chart-grid: #2c2c2a;
     --chart-axis: #383835;
 
-    --accent: #9085e9;
-    --accent-bg: rgba(144, 133, 233, 0.16);
-    --accent-border: rgba(144, 133, 233, 0.45);
-    --net: #9085e9;
-    --net-bg: rgba(144, 133, 233, 0.18);
+    --accent: #8fa0d9;
+    --accent-bg: rgba(143, 160, 217, 0.14);
+    --accent-border: rgba(143, 160, 217, 0.4);
+    --net: #8fa0d9;
+    --net-bg: rgba(143, 160, 217, 0.14);
 
-    --income: #0ca30c;
-    --income-mark: #0ca30c;
-    --income-bg: rgba(12, 163, 12, 0.16);
+    --income: #4ade80;
+    --income-mark: #22c55e;
+    --income-bg: rgba(74, 222, 128, 0.14);
 
-    --expense: #e66767;
-    --expense-mark: #d03b3b;
-    --expense-bg: rgba(208, 59, 59, 0.16);
+    --expense: #f87171;
+    --expense-mark: #ef4444;
+    --expense-bg: rgba(248, 113, 113, 0.14);
 
-    --danger: #e66767;
-    --danger-bg: rgba(208, 59, 59, 0.14);
+    --danger: #f87171;
+    --danger-bg: rgba(248, 113, 113, 0.12);
 
     --shadow:
       rgba(0, 0, 0, 0.5) 0 10px 24px -8px, rgba(0, 0, 0, 0.3) 0 4px 8px -2px;
