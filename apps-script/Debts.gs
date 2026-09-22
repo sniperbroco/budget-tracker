@@ -13,17 +13,29 @@ var Debts = (function () {
   function create(payload) {
     validate(payload)
     var now = new Date().toISOString()
+    var principal = Number(payload.originalAmount)
+    var interestRate = numberOrBlank(payload.interestRate)
+    // A fixed loan's total owed includes a one-time flat interest amount
+    // added to the principal (e.g. 10,000 principal at 10% -> 11,000
+    // owed) — this becomes both the balance and the 100% reference point
+    // for payoff progress. A credit card's limit is untouched by interest
+    // rate, since interest there accrues on carried balances over time,
+    // not upfront on the limit itself.
+    var loanTotalOwed = principal + principal * (Number(interestRate || 0) / 100)
     var row = {
       id: Utilities.getUuid(),
       name: payload.name.trim(),
       kind: payload.kind,
-      // A loan's balance starts at the full principal; a credit card starts
-      // at whatever current balance is supplied (usually 0 for a fresh card).
-      originalAmount: Number(payload.originalAmount),
-      balance: payload.kind === 'loan' ? Number(payload.originalAmount) : Number(payload.balance || 0),
-      interestRate: numberOrBlank(payload.interestRate),
+      originalAmount: payload.kind === 'loan' ? loanTotalOwed : principal,
+      balance: payload.kind === 'loan' ? loanTotalOwed : Number(payload.balance || 0),
+      interestRate: interestRate,
       minimumPayment: numberOrBlank(payload.minimumPayment),
       dueDay: numberOrBlank(payload.dueDay),
+      // Reference only — whatever your bank shows you directly for
+      // "available spending limit". Not derived from originalAmount/
+      // balance, since a bank's real available limit doesn't always
+      // reconcile with limit-minus-balance by simple subtraction.
+      availableLimit: numberOrBlank(payload.availableLimit),
       accountId: payload.accountId || '',
       color: payload.color || '#e34948',
       archived: false,
@@ -36,16 +48,18 @@ var Debts = (function () {
   function update(payload) {
     if (!payload.id) throw new Error('Missing id.')
     var patch = {}
-    ;['name', 'interestRate', 'minimumPayment', 'dueDay', 'accountId', 'color'].forEach(function (field) {
-      if (Object.prototype.hasOwnProperty.call(payload, field)) {
-        if (field === 'name') patch[field] = String(payload[field]).trim()
-        else if (field === 'interestRate' || field === 'minimumPayment' || field === 'dueDay') {
-          patch[field] = numberOrBlank(payload[field])
-        } else {
-          patch[field] = payload[field]
+    ;['name', 'interestRate', 'minimumPayment', 'dueDay', 'availableLimit', 'accountId', 'color'].forEach(
+      function (field) {
+        if (Object.prototype.hasOwnProperty.call(payload, field)) {
+          if (field === 'name') patch[field] = String(payload[field]).trim()
+          else if (field === 'interestRate' || field === 'minimumPayment' || field === 'dueDay' || field === 'availableLimit') {
+            patch[field] = numberOrBlank(payload[field])
+          } else {
+            patch[field] = payload[field]
+          }
         }
-      }
-    })
+      },
+    )
     if (patch.name !== undefined && !patch.name) throw new Error('Name is required.')
     patch.updatedAt = new Date().toISOString()
     return SheetUtil.updateRowById(SHEET_NAME, payload.id, patch)
@@ -79,6 +93,25 @@ var Debts = (function () {
     })
   }
 
+  // Called from Transactions.gs whenever a transaction is created, edited,
+  // or deleted. delta > 0 grows the balance owed (a charge/expense),
+  // delta < 0 shrinks it (a refund/income). Only ever touches a revolving
+  // credit card debt explicitly linked to that account — everything else
+  // (loans, unlinked accounts) is untouched.
+  function adjustBalanceForAccount(accountId, delta) {
+    if (!accountId || !delta) return
+    var debts = SheetUtil.readAllRows(SHEET_NAME)
+    var debt = debts.find(function (row) {
+      return row.kind === 'credit_card' && row.accountId === accountId && !row.archived
+    })
+    if (!debt) return
+    var nextBalance = Math.max(0, Number(debt.balance || 0) + delta)
+    SheetUtil.updateRowById(SHEET_NAME, debt.id, {
+      balance: nextBalance,
+      updatedAt: new Date().toISOString(),
+    })
+  }
+
   function numberOrBlank(value) {
     return value === undefined || value === null || value === '' ? '' : Number(value)
   }
@@ -89,5 +122,12 @@ var Debts = (function () {
     if (!(Number(payload.originalAmount) > 0)) throw new Error('Amount must be greater than 0.')
   }
 
-  return { list: list, create: create, update: update, archive: archive, record: record }
+  return {
+    list: list,
+    create: create,
+    update: update,
+    archive: archive,
+    record: record,
+    adjustBalanceForAccount: adjustBalanceForAccount,
+  }
 })()

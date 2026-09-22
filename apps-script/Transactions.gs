@@ -39,11 +39,19 @@ var Transactions = (function () {
       createdAt: now,
       updatedAt: now,
     }
-    return SheetUtil.appendRow(SHEET_NAME, row)
+    var created = SheetUtil.appendRow(SHEET_NAME, row)
+    Debts.adjustBalanceForAccount(created.accountId, signedAmount(created.type, created.amount))
+    return created
   }
 
   function update(payload) {
     if (!payload.id) throw new Error('Missing id.')
+
+    var existing = SheetUtil.readAllRows(SHEET_NAME).find(function (row) {
+      return row.id === payload.id
+    })
+    if (!existing) throw new Error('Row not found: ' + payload.id)
+
     var patch = {}
     ;['date', 'type', 'categoryId', 'accountId', 'amount', 'notes', 'tags'].forEach(function (field) {
       if (Object.prototype.hasOwnProperty.call(payload, field)) {
@@ -54,13 +62,35 @@ var Transactions = (function () {
     })
     validate(patch, true)
     patch.updatedAt = new Date().toISOString()
-    return SheetUtil.updateRowById(SHEET_NAME, payload.id, patch)
+    var updated = SheetUtil.updateRowById(SHEET_NAME, payload.id, patch)
+
+    // Undo the old transaction's effect on any linked credit card debt,
+    // then apply the new one — handles amount/type/account all changing
+    // at once, and nets out to zero when nothing relevant changed.
+    Debts.adjustBalanceForAccount(existing.accountId, -signedAmount(existing.type, existing.amount))
+    Debts.adjustBalanceForAccount(updated.accountId, signedAmount(updated.type, updated.amount))
+
+    return updated
   }
 
   function remove(payload) {
     if (!payload.id) throw new Error('Missing id.')
+
+    var existing = SheetUtil.readAllRows(SHEET_NAME).find(function (row) {
+      return row.id === payload.id
+    })
+    if (!existing) throw new Error('Row not found: ' + payload.id)
+
     SheetUtil.deleteRowById(SHEET_NAME, payload.id)
+    Debts.adjustBalanceForAccount(existing.accountId, -signedAmount(existing.type, existing.amount))
     return { id: payload.id }
+  }
+
+  // Positive grows a linked credit card's balance owed (a charge/expense),
+  // negative shrinks it (a refund/income).
+  function signedAmount(type, amount) {
+    var numericAmount = Number(amount) || 0
+    return type === 'expense' ? numericAmount : -numericAmount
   }
 
   function normalizeTags(tags) {

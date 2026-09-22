@@ -4,6 +4,7 @@ import { Icon } from '../components/Icon'
 const MORE_LINKS = [
   { to: '/categories', label: 'Categories', icon: 'tag', description: 'Manage income and expense categories' },
   { to: '/goals', label: 'Savings goals', icon: 'target', description: 'Track progress toward a target' },
+  { to: '/debts', label: 'Debts', icon: 'trendingDown', description: 'Loans and credit cards you’re paying off' },
   { to: '/recurring', label: 'Recurring', icon: 'repeat', description: 'Rent, subscriptions, salary' },
 ]
 

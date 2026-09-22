@@ -4,12 +4,14 @@ import { Select } from '../../components/Select'
 import { Button } from '../../components/Button'
 import { ColorSwatchPicker } from '../../components/ColorSwatchPicker'
 import { CATEGORY_COLORS } from '../../components/categoryColors'
+import { formatCurrency } from '../../utils/currency'
 
 export function DebtForm({ debt, accounts, onSubmit, onCancel }) {
   const [name, setName] = useState(debt?.name ?? '')
   const [kind, setKind] = useState(debt?.kind ?? 'loan')
   const [originalAmount, setOriginalAmount] = useState(debt?.originalAmount ?? '')
   const [balance, setBalance] = useState(debt?.balance ?? '')
+  const [availableLimit, setAvailableLimit] = useState(debt?.availableLimit ?? '')
   const [interestRate, setInterestRate] = useState(debt?.interestRate ?? '')
   const [minimumPayment, setMinimumPayment] = useState(debt?.minimumPayment ?? '')
   const [dueDay, setDueDay] = useState(debt?.dueDay ?? '')
@@ -41,6 +43,7 @@ export function DebtForm({ debt, accounts, onSubmit, onCancel }) {
         interestRate: interestRate === '' ? '' : Number(interestRate),
         minimumPayment: minimumPayment === '' ? '' : Number(minimumPayment),
         dueDay: dueDay === '' ? '' : Number(dueDay),
+        availableLimit: availableLimit === '' ? '' : Number(availableLimit),
         accountId,
         color,
       })
@@ -70,7 +73,7 @@ export function DebtForm({ debt, accounts, onSubmit, onCancel }) {
         type="number"
         min="0"
         step="0.01"
-        label={kind === 'loan' ? 'Principal amount' : 'Credit limit'}
+        label={kind === 'loan' ? 'Principal amount' : 'Total spending limit'}
         value={originalAmount}
         onChange={(e) => setOriginalAmount(e.target.value)}
         error={errors.originalAmount}
@@ -83,10 +86,22 @@ export function DebtForm({ debt, accounts, onSubmit, onCancel }) {
           type="number"
           min="0"
           step="0.01"
-          label="Current balance owed (optional)"
+          label="Total balance owed / unbilled amount (optional)"
           value={balance}
           onChange={(e) => setBalance(e.target.value)}
           placeholder="0.00 — leave blank if the card has no balance yet"
+        />
+      )}
+      {kind === 'credit_card' && (
+        <Field
+          id="debt-available-limit"
+          type="number"
+          min="0"
+          step="0.01"
+          label="Available spending limit (optional)"
+          value={availableLimit}
+          onChange={(e) => setAvailableLimit(e.target.value)}
+          placeholder="0.00 — update this each statement cycle"
         />
       )}
       <Field
@@ -99,6 +114,13 @@ export function DebtForm({ debt, accounts, onSubmit, onCancel }) {
         onChange={(e) => setInterestRate(e.target.value)}
         placeholder="e.g. 2.5"
       />
+      {kind === 'loan' && !debt && originalAmount !== '' && Number(interestRate) > 0 && (
+        <p className="field-hint">
+          Total owed will be calculated as{' '}
+          {formatCurrency(Number(originalAmount) + Number(originalAmount) * (Number(interestRate) / 100))} (principal
+          + {interestRate}% interest).
+        </p>
+      )}
       <Field
         id="debt-min-payment"
         type="number"
@@ -119,18 +141,24 @@ export function DebtForm({ debt, accounts, onSubmit, onCancel }) {
         onChange={(e) => setDueDay(e.target.value)}
         placeholder="e.g. 15"
       />
-      {accounts.length > 0 && (
+      {kind === 'credit_card' && accounts.length > 0 && (
         <Select
           id="debt-account"
-          label="Pay from account (optional)"
+          label="Linked account (optional)"
           value={accountId}
           onChange={(e) => setAccountId(e.target.value)}
         >
-          <option value="">No account</option>
+          <option value="">No linked account</option>
           {accounts.map((account) => (
             <option key={account.id} value={account.id}>{account.name}</option>
           ))}
         </Select>
+      )}
+      {kind === 'credit_card' && accountId && (
+        <p className="field-hint">
+          Charges and refunds you log against this account will automatically update this card's
+          balance. Payments you make from another account still need a manual "Log a payment" here.
+        </p>
       )}
       <div className="field">
         <span className="field-label">Color</span>

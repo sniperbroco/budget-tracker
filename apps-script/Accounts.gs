@@ -44,19 +44,36 @@ var Accounts = (function () {
     return SheetUtil.updateRowById(SHEET_NAME, payload.id, { archived: archived })
   }
 
-  // startingBalance + sum(income) - sum(expense), across ALL transactions
-  // ever recorded for that account (not scoped to a period).
+  // For a normal account: startingBalance + sum(income) - sum(expense),
+  // across ALL transactions ever recorded for that account (not scoped to
+  // a period). For an account linked to a revolving credit card debt, the
+  // balance instead directly mirrors that debt's `availableLimit` field —
+  // a number you enter by hand from your bank each statement cycle, not
+  // computed from anything, since it doesn't reconcile with limit/balance
+  // by simple subtraction.
   function balances() {
     var accounts = SheetUtil.readAllRows(SHEET_NAME)
     var transactions = SheetUtil.readAllRows('Transactions')
+    var debts = SheetUtil.readAllRows('Debts')
     var totals = {}
 
+    var linkedCreditCards = {}
+    debts.forEach(function (debt) {
+      if (debt.kind === 'credit_card' && debt.accountId && !debt.archived) {
+        linkedCreditCards[debt.accountId] = debt
+      }
+    })
+
     accounts.forEach(function (account) {
-      totals[account.id] = Number(account.startingBalance) || 0
+      var linkedDebt = linkedCreditCards[account.id]
+      totals[account.id] = linkedDebt
+        ? Number(linkedDebt.availableLimit) || 0
+        : Number(account.startingBalance) || 0
     })
 
     transactions.forEach(function (transaction) {
       if (!transaction.accountId || !(transaction.accountId in totals)) return
+      if (linkedCreditCards[transaction.accountId]) return
       var amount = Number(transaction.amount) || 0
       totals[transaction.accountId] += transaction.type === 'income' ? amount : -amount
     })

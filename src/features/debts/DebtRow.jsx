@@ -13,7 +13,6 @@ function ordinalSuffix(day) {
 
 export function DebtRow({ debt, onEdit, onArchive, onLogPayment }) {
   const isLoan = debt.kind === 'loan'
-  const progressValue = isLoan ? debt.originalAmount - debt.balance : debt.balance
 
   return (
     <li className={`debt-row ${debt.archived ? 'is-archived' : ''}`.trim()}>
@@ -23,10 +22,13 @@ export function DebtRow({ debt, onEdit, onArchive, onLogPayment }) {
           {debt.name}
           <span className="badge badge-muted">{KIND_LABELS[debt.kind]}</span>
         </span>
-        <ProgressBar value={progressValue} max={debt.originalAmount} />
+        <ProgressBar value={debt.balance} max={debt.originalAmount} />
         <span className="debt-figures">
           {formatCurrency(debt.balance)} owed of {formatCurrency(debt.originalAmount)}
-          {isLoan ? ' · paid off' : ' · utilized'}
+          {isLoan ? ' · outstanding' : ' · utilized'}
+          {!isLoan && debt.availableLimit !== '' && debt.availableLimit !== undefined
+            ? ` · ${formatCurrency(debt.availableLimit)} available`
+            : ''}
           {debt.dueDay ? ` · due on the ${debt.dueDay}${ordinalSuffix(debt.dueDay)}` : ''}
         </span>
       </div>

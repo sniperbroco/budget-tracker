@@ -5,9 +5,9 @@ import { Button } from '../../components/Button'
 import { validateTransaction, hasErrors } from '../../utils/validation'
 import { getCurrentDateKey } from '../../utils/date'
 
-export function TransactionForm({ transaction, categories, accounts, onSubmit, onCancel }) {
+export function TransactionForm({ transaction, categories, accounts, fixedType, onSubmit, onCancel }) {
   const [date, setDate] = useState(transaction?.date ?? getCurrentDateKey())
-  const [type, setType] = useState(transaction?.type ?? 'expense')
+  const [type, setType] = useState(fixedType ?? transaction?.type ?? 'expense')
   const [categoryId, setCategoryId] = useState(transaction?.categoryId ?? '')
   const [accountId, setAccountId] = useState(transaction?.accountId ?? '')
   const [amount, setAmount] = useState(transaction?.amount ?? '')
@@ -61,6 +61,7 @@ export function TransactionForm({ transaction, categories, accounts, onSubmit, o
         value={type}
         onChange={(e) => handleTypeChange(e.target.value)}
         error={errors.type}
+        disabled={Boolean(fixedType)}
       >
         <option value="expense">Expense</option>
         <option value="income">Income</option>

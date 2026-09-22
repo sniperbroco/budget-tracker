@@ -5,6 +5,7 @@ export const NAV_ITEMS = [
   { to: '/budgets', label: 'Budgets', icon: 'wallet' },
   { to: '/categories', label: 'Categories', icon: 'tag' },
   { to: '/goals', label: 'Savings goals', icon: 'target' },
+  { to: '/debts', label: 'Debts', icon: 'trendingDown' },
   { to: '/recurring', label: 'Recurring', icon: 'repeat' },
 ]
 
@@ -18,4 +19,4 @@ export const MOBILE_NAV_ITEMS = [
   { to: '/more', label: 'More', icon: 'moreHorizontal' },
 ]
 
-export const MORE_ROUTES = ['/more', '/categories', '/goals', '/recurring']
+export const MORE_ROUTES = ['/more', '/categories', '/goals', '/debts', '/recurring']

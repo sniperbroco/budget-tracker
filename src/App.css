@@ -450,6 +450,12 @@
   font-size: 12px;
 }
 
+.field-hint {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: -6px 0 0;
+}
+
 .toggle {
   display: flex;
   align-items: center;
@@ -1081,6 +1087,23 @@
   &.is-negative {
     color: var(--expense);
   }
+}
+
+.account-overview-totals {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.account-overview-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-h);
 }
 
 /* ---------- Goals ---------- */

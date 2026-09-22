@@ -3,11 +3,13 @@ import { useTransactions } from '../features/transactions/useTransactions'
 import { useCategories } from '../features/categories/useCategories'
 import { useBudgets } from '../features/budgets/useBudgets'
 import { useAccounts } from '../features/accounts/useAccounts'
+import { useDebts } from '../features/debts/useDebts'
 import { SummaryCards } from '../features/dashboard/SummaryCards'
 import { CategoryBreakdownChart } from '../features/dashboard/CategoryBreakdownChart'
 import { BudgetProgressOverview } from '../features/dashboard/BudgetProgressOverview'
 import { TrendChart } from '../features/dashboard/TrendChart'
 import { AccountBalancesOverview } from '../features/dashboard/AccountBalancesOverview'
+import { DebtsOverview } from '../features/dashboard/DebtsOverview'
 import { Spinner } from '../components/Spinner'
 import { Icon } from '../components/Icon'
 import { ErrorBanner } from '../components/ErrorBanner'
@@ -32,12 +34,13 @@ export function DashboardPage() {
   const { categories, loading: loadingCategories, error: categoriesError } = useCategories()
   const { budgets, loading: loadingBudgets, error: budgetsError } = useBudgets(month)
   const { accounts, balances, loading: loadingAccounts, error: accountsError } = useAccounts()
+  const { debts, loading: loadingDebts, error: debtsError } = useDebts()
 
   const trendRange = useMemo(() => getTrailingRange(TREND_MONTHS), [])
   const trendMonthKeys = useMemo(() => getTrailingMonthKeys(TREND_MONTHS), [])
   const { transactions: trendTransactions, loading: loadingTrend, error: trendError } = useTransactions(trendRange)
 
-  const loadError = transactionsError || categoriesError || budgetsError || accountsError || trendError
+  const loadError = transactionsError || categoriesError || budgetsError || accountsError || trendError || debtsError
 
   const categoriesById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
 
@@ -116,6 +119,27 @@ export function DashboardPage() {
     })
   }, [trendTransactions, trendMonthKeys])
 
+  const savingsTotal = useMemo(
+    () =>
+      accounts
+        .filter((account) => account.type === 'bank' || account.type === 'cash' || account.type === 'ewallet')
+        .reduce((sum, account) => sum + (balances[account.id] ?? 0), 0),
+    [accounts, balances],
+  )
+
+  const availableCreditTotal = useMemo(
+    () =>
+      accounts
+        .filter((account) => account.type === 'credit')
+        .reduce((sum, account) => {
+          const linkedDebt = debts.find(
+            (debt) => debt.kind === 'credit_card' && debt.accountId === account.id && !debt.archived,
+          )
+          return sum + (linkedDebt ? Number(linkedDebt.availableLimit) || 0 : 0)
+        }, 0),
+    [accounts, debts],
+  )
+
   const loading = loadingTransactions || loadingCategories || loadingBudgets
 
   return (
@@ -164,7 +188,20 @@ export function DashboardPage() {
             </section>
             <section className="card">
               <h2>Account balances</h2>
-              {loadingAccounts ? <Spinner /> : <AccountBalancesOverview accounts={accounts} balances={balances} />}
+              {loadingAccounts ? (
+                <Spinner />
+              ) : (
+                <AccountBalancesOverview
+                  accounts={accounts}
+                  balances={balances}
+                  savingsTotal={savingsTotal}
+                  availableCreditTotal={availableCreditTotal}
+                />
+              )}
+            </section>
+            <section className="card">
+              <h2>Debts</h2>
+              {loadingDebts ? <Spinner /> : <DebtsOverview debts={debts} />}
             </section>
           </div>
         </>

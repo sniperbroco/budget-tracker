@@ -9,6 +9,7 @@ import { CategoriesPage } from './pages/CategoriesPage'
 import { BudgetsPage } from './pages/BudgetsPage'
 import { AccountsPage } from './pages/AccountsPage'
 import { GoalsPage } from './pages/GoalsPage'
+import { DebtsPage } from './pages/DebtsPage'
 import { RecurringPage } from './pages/RecurringPage'
 import { MorePage } from './pages/MorePage'
 import './App.css'
@@ -31,6 +32,7 @@ function App() {
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="budgets" element={<BudgetsPage />} />
           <Route path="goals" element={<GoalsPage />} />
+          <Route path="debts" element={<DebtsPage />} />
           <Route path="recurring" element={<RecurringPage />} />
           <Route path="more" element={<MorePage />} />
         </Route>
