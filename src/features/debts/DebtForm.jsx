@@ -9,6 +9,7 @@ export function DebtForm({ debt, accounts, onSubmit, onCancel }) {
   const [name, setName] = useState(debt?.name ?? '')
   const [kind, setKind] = useState(debt?.kind ?? 'loan')
   const [originalAmount, setOriginalAmount] = useState(debt?.originalAmount ?? '')
+  const [balance, setBalance] = useState(debt?.balance ?? '')
   const [interestRate, setInterestRate] = useState(debt?.interestRate ?? '')
   const [minimumPayment, setMinimumPayment] = useState(debt?.minimumPayment ?? '')
   const [dueDay, setDueDay] = useState(debt?.dueDay ?? '')
@@ -36,6 +37,7 @@ export function DebtForm({ debt, accounts, onSubmit, onCancel }) {
         name: name.trim(),
         kind,
         originalAmount: Number(originalAmount),
+        ...(kind === 'credit_card' && !debt ? { balance: balance === '' ? 0 : Number(balance) } : {}),
         interestRate: interestRate === '' ? '' : Number(interestRate),
         minimumPayment: minimumPayment === '' ? '' : Number(minimumPayment),
         dueDay: dueDay === '' ? '' : Number(dueDay),
@@ -75,6 +77,18 @@ export function DebtForm({ debt, accounts, onSubmit, onCancel }) {
         placeholder="0.00"
         disabled={Boolean(debt)}
       />
+      {kind === 'credit_card' && !debt && (
+        <Field
+          id="debt-balance"
+          type="number"
+          min="0"
+          step="0.01"
+          label="Current balance owed (optional)"
+          value={balance}
+          onChange={(e) => setBalance(e.target.value)}
+          placeholder="0.00 — leave blank if the card has no balance yet"
+        />
+      )}
       <Field
         id="debt-interest"
         type="number"
