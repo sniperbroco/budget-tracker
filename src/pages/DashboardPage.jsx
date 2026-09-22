@@ -5,6 +5,7 @@ import { useBudgets } from '../features/budgets/useBudgets'
 import { useAccounts } from '../features/accounts/useAccounts'
 import { useDebts } from '../features/debts/useDebts'
 import { SummaryCards } from '../features/dashboard/SummaryCards'
+import { NetWorthCards } from '../features/dashboard/NetWorthCards'
 import { CategoryBreakdownChart } from '../features/dashboard/CategoryBreakdownChart'
 import { BudgetProgressOverview } from '../features/dashboard/BudgetProgressOverview'
 import { TrendChart } from '../features/dashboard/TrendChart'
@@ -140,6 +141,11 @@ export function DashboardPage() {
     [accounts, debts],
   )
 
+  const debtsTotal = useMemo(
+    () => debts.reduce((sum, debt) => sum + (Number(debt.balance) || 0), 0),
+    [debts],
+  )
+
   const loading = loadingTransactions || loadingCategories || loadingBudgets
 
   return (
@@ -170,7 +176,19 @@ export function DashboardPage() {
         <Spinner />
       ) : (
         <>
+          <h2 className="dashboard-section-label">This period</h2>
           <SummaryCards income={totals.income} expense={totals.expense} net={totals.income - totals.expense} />
+
+          <h2 className="dashboard-section-label">Your position</h2>
+          {loadingAccounts || loadingDebts ? (
+            <Spinner />
+          ) : (
+            <NetWorthCards
+              savingsTotal={savingsTotal}
+              availableCreditTotal={availableCreditTotal}
+              debtsTotal={debtsTotal}
+            />
+          )}
 
           <section className="card">
             <h2>Last {TREND_MONTHS} months</h2>
@@ -179,29 +197,20 @@ export function DashboardPage() {
 
           <div className="dashboard-grid">
             <section className="card">
-              <h2>Spending by category</h2>
-              <CategoryBreakdownChart data={categoryBreakdown} />
+              <h2>Account balances</h2>
+              {loadingAccounts ? <Spinner /> : <AccountBalancesOverview accounts={accounts} balances={balances} />}
+            </section>
+            <section className="card">
+              <h2>Debts</h2>
+              {loadingDebts ? <Spinner /> : <DebtsOverview debts={debts} />}
             </section>
             <section className="card">
               <h2>Budget progress</h2>
               <BudgetProgressOverview items={budgetOverview} />
             </section>
             <section className="card">
-              <h2>Account balances</h2>
-              {loadingAccounts ? (
-                <Spinner />
-              ) : (
-                <AccountBalancesOverview
-                  accounts={accounts}
-                  balances={balances}
-                  savingsTotal={savingsTotal}
-                  availableCreditTotal={availableCreditTotal}
-                />
-              )}
-            </section>
-            <section className="card">
-              <h2>Debts</h2>
-              {loadingDebts ? <Spinner /> : <DebtsOverview debts={debts} />}
+              <h2>Spending by category</h2>
+              <CategoryBreakdownChart data={categoryBreakdown} />
             </section>
           </div>
         </>
