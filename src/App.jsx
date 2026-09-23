@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { BudgetsPage } from './pages/BudgetsPage'
+import { PaychecksPage } from './pages/PaychecksPage'
 import { AccountsPage } from './pages/AccountsPage'
 import { GoalsPage } from './pages/GoalsPage'
 import { DebtsPage } from './pages/DebtsPage'
@@ -31,6 +32,7 @@ function App() {
           <Route path="accounts" element={<AccountsPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="budgets" element={<BudgetsPage />} />
+          <Route path="paychecks" element={<PaychecksPage />} />
           <Route path="goals" element={<GoalsPage />} />
           <Route path="debts" element={<DebtsPage />} />
           <Route path="recurring" element={<RecurringPage />} />

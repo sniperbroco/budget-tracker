@@ -8,6 +8,7 @@ sign-in so only your own Google account can read or write it.
 
 - Full CRUD on transactions (income/expense), categories, accounts, and savings goals
 - Monthly per-category budget limits with progress indicators
+- Paycheck envelopes: log each paycheck and split it into freeform buckets (not tied to categories)
 - Multiple accounts/wallets with live balances
 - Savings goals with contribute/withdraw and progress tracking
 - Recurring transactions (rent, subscriptions, salary) that auto-generate each period
@@ -29,8 +30,9 @@ email before touching the spreadsheet — see `apps-script/Auth.gs`.
 
 ### 1. Create the Google Sheet
 
-Create a new Google Sheet with six tabs, each with a header row exactly
-matching the columns below (order doesn't matter, names must match).
+Create a new Google Sheet with tabs for each entity below, each with a header
+row exactly matching the columns listed (order doesn't matter, names must
+match).
 
 **Transactions**: `id, date, type, categoryId, accountId, amount, notes, tags, createdAt, updatedAt`
 
@@ -43,6 +45,12 @@ matching the columns below (order doesn't matter, names must match).
 **SavingsGoals**: `id, name, targetAmount, targetDate, currentAmount, color, archived, createdAt, updatedAt`
 
 **RecurringTransactions**: `id, type, categoryId, accountId, amount, notes, tags, frequency, startDate, nextRunDate, active, createdAt, updatedAt`
+
+**Debts**: `id, name, kind, originalAmount, balance, interestRate, minimumPayment, dueDay, availableLimit, accountId, color, archived, createdAt, updatedAt`
+
+**Paychecks**: `id, date, amount, label, createdAt, updatedAt`
+
+**PaycheckEnvelopes**: `id, paycheckId, name, amount, notes, createdAt, updatedAt`
 
 `accountId` and `tags` are optional per row — existing transactions without
 them are still valid. Copy the Sheet's ID from its URL

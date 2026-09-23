@@ -92,6 +92,22 @@ function routeAction(action, payload) {
       return Debts.archive(payload)
     case 'debts.record':
       return Debts.record(payload)
+    case 'paychecks.list':
+      return Paychecks.list(payload)
+    case 'paychecks.create':
+      return Paychecks.create(payload)
+    case 'paychecks.update':
+      return Paychecks.update(payload)
+    case 'paychecks.delete':
+      return Paychecks.remove(payload)
+    case 'envelopes.list':
+      return PaycheckEnvelopes.list(payload)
+    case 'envelopes.create':
+      return PaycheckEnvelopes.create(payload)
+    case 'envelopes.update':
+      return PaycheckEnvelopes.update(payload)
+    case 'envelopes.delete':
+      return PaycheckEnvelopes.remove(payload)
     default:
       throw new Error('Unknown action: ' + action)
   }

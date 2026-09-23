@@ -1259,6 +1259,94 @@
   white-space: nowrap;
 }
 
+/* ---------- Paychecks ---------- */
+
+.paycheck-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paycheck-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.paycheck-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+
+.paycheck-main {
+  flex: 1 1 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.paycheck-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.paycheck-figures {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.paycheck-remaining-negative {
+  color: var(--expense);
+  font-weight: 600;
+}
+
+.envelope-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.envelope-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.envelope-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.envelope-name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-h);
+}
+
+.envelope-amount {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.envelope-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
 /* ---------- More (mobile secondary nav) ---------- */
 
 .more-list {
