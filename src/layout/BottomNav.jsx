@@ -22,9 +22,11 @@ export function BottomNav() {
             key={item.to}
             to={item.to}
             end={item.end}
-            className={({ isActive }) => `bottom-nav-link ${isActive ? 'is-active' : ''}`.trim()}
+            className={({ isActive }) =>
+              `bottom-nav-link ${item.raised ? 'bottom-nav-link-raised' : ''} ${isActive ? 'is-active' : ''}`.trim()
+            }
           >
-            <Icon name={item.icon} />
+            <Icon name={item.icon} size={item.raised ? 22 : 18} />
             <span>{item.label}</span>
           </NavLink>
         )
