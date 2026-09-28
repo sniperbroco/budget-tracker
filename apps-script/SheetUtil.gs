@@ -20,6 +20,35 @@ var SheetUtil = (function () {
     return sheet.getRange(1, 1, 1, lastColumn).getValues()[0]
   }
 
+  // Every date/month value we write is a plain string (e.g. "2026-09-28" or
+  // "2026-09"). Sheets' "Automatic" cell format silently reinterprets those
+  // as real Date cells the moment they're written, which then read back as
+  // full ISO timestamps instead of the original string. These two helpers
+  // guard against that on both ends: force the target cell to Plain Text
+  // before writing a date-like string, and un-mangle any cell that already
+  // got auto-converted to a Date before it leaves the server.
+  function isDateLikeString(value) {
+    return typeof value === 'string' && /^\d{4}-\d{2}(-\d{2})?$/.test(value)
+  }
+
+  function normalizeCellValue(value) {
+    if (!(value instanceof Date)) return value
+    var tz = Session.getScriptTimeZone()
+    var hasTime =
+      value.getHours() !== 0 || value.getMinutes() !== 0 || value.getSeconds() !== 0 || value.getMilliseconds() !== 0
+    return hasTime
+      ? Utilities.formatDate(value, tz, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+      : Utilities.formatDate(value, tz, 'yyyy-MM-dd')
+  }
+
+  function protectDateColumns(range, headers, values) {
+    headers.forEach(function (header, index) {
+      if (isDateLikeString(values[index])) {
+        range.getCell(1, index + 1).setNumberFormat('@')
+      }
+    })
+  }
+
   function readAllRows(sheetName) {
     var sheet = getSheet(sheetName)
     var headers = getHeaders(sheet)
@@ -30,7 +59,7 @@ var SheetUtil = (function () {
     return values.map(function (row) {
       var obj = {}
       headers.forEach(function (header, index) {
-        obj[header] = row[index]
+        obj[header] = normalizeCellValue(row[index])
       })
       return obj
     })
@@ -42,7 +71,10 @@ var SheetUtil = (function () {
     var row = headers.map(function (header) {
       return Object.prototype.hasOwnProperty.call(rowObj, header) ? rowObj[header] : ''
     })
-    sheet.appendRow(row)
+    var targetRow = sheet.getLastRow() + 1
+    var range = sheet.getRange(targetRow, 1, 1, row.length)
+    protectDateColumns(range, headers, row)
+    range.setValues([row])
     return rowObj
   }
 
@@ -67,9 +99,11 @@ var SheetUtil = (function () {
 
     var currentValues = sheet.getRange(rowIndex, 1, 1, headers.length).getValues()[0]
     var nextValues = headers.map(function (header, index) {
-      return Object.prototype.hasOwnProperty.call(patchObj, header) ? patchObj[header] : currentValues[index]
+      return Object.prototype.hasOwnProperty.call(patchObj, header) ? patchObj[header] : normalizeCellValue(currentValues[index])
     })
-    sheet.getRange(rowIndex, 1, 1, headers.length).setValues([nextValues])
+    var range = sheet.getRange(rowIndex, 1, 1, headers.length)
+    protectDateColumns(range, headers, nextValues)
+    range.setValues([nextValues])
 
     var result = {}
     headers.forEach(function (header, index) {

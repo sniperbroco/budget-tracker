@@ -48,7 +48,7 @@ export function formatMonthLabel(monthKey) {
 
 export function formatDateLabel(dateKey) {
   if (!dateKey) return ''
-  const [year, month, day] = dateKey.split('-').map(Number)
+  const [year, month, day] = dateKey.slice(0, 10).split('-').map(Number)
   return `${MONTH_LABELS[month - 1].slice(0, 3)} ${day}, ${year}`
 }
 
