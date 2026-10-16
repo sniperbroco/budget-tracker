@@ -116,3 +116,10 @@ function routeAction(action, payload) {
 function jsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON)
 }
+
+// Temporary: run this once manually from the editor to trigger the
+// authorization prompt for UrlFetchApp/SpreadsheetApp, then delete it.
+function authorizeScopes() {
+  UrlFetchApp.fetch('https://www.google.com')
+  SheetUtil.getSpreadsheet()
+}

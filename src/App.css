@@ -1410,3 +1410,134 @@
   font-size: 12px;
   color: var(--text-muted);
 }
+
+/* ---------- Public pages (landing, privacy) ---------- */
+
+.login-privacy {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.public-page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-muted);
+}
+
+.public-header,
+.public-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+}
+
+.public-footer {
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.public-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.public-link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.public-main {
+  flex: 1;
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.public-hero {
+  text-align: center;
+  padding: 40px 0 32px;
+}
+
+.public-hero h1 {
+  color: var(--text-h);
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.public-lead {
+  max-width: 620px;
+  margin: 0 auto 24px;
+  font-size: 17px;
+}
+
+.public-cta {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.public-section {
+  margin-top: 32px;
+}
+
+.public-section h2,
+.public-legal h2 {
+  color: var(--text-h);
+  margin: 28px 0 8px;
+  font-size: 20px;
+}
+
+.public-legal h1 {
+  color: var(--text-h);
+}
+
+.public-legal h3 {
+  color: var(--text-h);
+  margin: 16px 0 4px;
+  font-size: 16px;
+}
+
+.public-legal ul {
+  padding-left: 20px;
+}
+
+.public-muted {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.public-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.public-feature {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.public-feature h3 {
+  color: var(--text-h);
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.public-feature p {
+  font-size: 14px;
+}

@@ -3,6 +3,8 @@ import { AuthProvider } from './auth/AuthContext'
 import { RequireAuth } from './auth/RequireAuth'
 import { AppShell } from './layout/AppShell'
 import { LoginPage } from './pages/LoginPage'
+import { LandingPage } from './pages/LandingPage'
+import { PrivacyPage } from './pages/PrivacyPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { CategoriesPage } from './pages/CategoriesPage'
@@ -19,6 +21,8 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route
           element={
@@ -27,7 +31,7 @@ function App() {
             </RequireAuth>
           }
         >
-          <Route index element={<DashboardPage />} />
+          <Route path="dashboard" element={<DashboardPage />} />
           <Route path="transactions" element={<TransactionsPage />} />
           <Route path="accounts" element={<AccountsPage />} />
           <Route path="categories" element={<CategoriesPage />} />

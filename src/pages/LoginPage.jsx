@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { GoogleSignInButton } from '../auth/GoogleSignInButton'
 import { Icon } from '../components/Icon'
@@ -9,7 +9,7 @@ export function LoginPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (idToken) navigate('/', { replace: true })
+    if (idToken) navigate('/dashboard', { replace: true })
   }, [idToken, navigate])
 
   return (
@@ -21,8 +21,11 @@ export function LoginPage() {
         <h1>Budget Tracker</h1>
         <p>Sign in with the Google account that owns your budget spreadsheet.</p>
         <div className="login-action">
-          <GoogleSignInButton onSignedIn={() => navigate('/', { replace: true })} />
+          <GoogleSignInButton onSignedIn={() => navigate('/dashboard', { replace: true })} />
         </div>
+        <Link to="/privacy" className="login-privacy">
+          Privacy Policy
+        </Link>
       </div>
     </div>
   )
