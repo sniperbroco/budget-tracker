@@ -28,8 +28,26 @@ function doGet() {
   return jsonResponse({ ok: true, message: 'Use POST for all data operations.' })
 }
 
+// Runs several read actions in one execution so a page load costs a single
+// Apps Script invocation. Each result carries its own ok/error so one failed
+// read doesn't sink the rest. Reads only: writes go through routeAction.
+function runBatch(payload) {
+  var requests = payload.requests
+  if (!Array.isArray(requests) || requests.length > 20) throw new Error('Invalid batch.')
+  return requests.map(function (request) {
+    try {
+      if (!/\.(list|balances)$/.test(request.action)) throw new Error('Batch only supports read actions.')
+      return { ok: true, data: routeAction(request.action, request.payload || {}) }
+    } catch (err) {
+      return { ok: false, error: err.message }
+    }
+  })
+}
+
 function routeAction(action, payload) {
   switch (action) {
+    case 'batch':
+      return runBatch(payload)
     case 'transactions.list':
       return Transactions.list(payload)
     case 'transactions.create':

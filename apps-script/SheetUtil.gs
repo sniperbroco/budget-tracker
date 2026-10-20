@@ -2,10 +2,15 @@
 // Every sheet is read/written by header name (not column index), so
 // reordering columns in the spreadsheet doesn't break anything.
 var SheetUtil = (function () {
+  // Opened once per execution; every sheet read/write in a request reuses it.
+  var spreadsheet = null
+
   function getSpreadsheet() {
+    if (spreadsheet) return spreadsheet
     var sheetId = PropertiesService.getScriptProperties().getProperty('SHEET_ID')
     if (!sheetId) throw new Error('Server is missing the SHEET_ID script property.')
-    return SpreadsheetApp.openById(sheetId)
+    spreadsheet = SpreadsheetApp.openById(sheetId)
+    return spreadsheet
   }
 
   function getSheet(name) {
@@ -49,7 +54,18 @@ var SheetUtil = (function () {
     })
   }
 
+  // Rows read this execution, so a batch (or a handler that needs the same
+  // sheet twice) hits the spreadsheet once. Dropped on any write to the tab.
+  var rowCache = {}
+
   function readAllRows(sheetName) {
+    if (rowCache[sheetName]) return rowCache[sheetName].slice()
+    var rows = readRowsFromSheet(sheetName)
+    rowCache[sheetName] = rows
+    return rows.slice()
+  }
+
+  function readRowsFromSheet(sheetName) {
     var sheet = getSheet(sheetName)
     var headers = getHeaders(sheet)
     var lastRow = sheet.getLastRow()
@@ -66,6 +82,7 @@ var SheetUtil = (function () {
   }
 
   function appendRow(sheetName, rowObj) {
+    delete rowCache[sheetName]
     var sheet = getSheet(sheetName)
     var headers = getHeaders(sheet)
     var row = headers.map(function (header) {
@@ -92,6 +109,7 @@ var SheetUtil = (function () {
   }
 
   function updateRowById(sheetName, id, patchObj) {
+    delete rowCache[sheetName]
     var sheet = getSheet(sheetName)
     var headers = getHeaders(sheet)
     var rowIndex = findRowIndexById(sheet, headers, id)
@@ -113,6 +131,7 @@ var SheetUtil = (function () {
   }
 
   function deleteRowById(sheetName, id) {
+    delete rowCache[sheetName]
     var sheet = getSheet(sheetName)
     var headers = getHeaders(sheet)
     var rowIndex = findRowIndexById(sheet, headers, id)
