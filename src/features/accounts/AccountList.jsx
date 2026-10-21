@@ -3,7 +3,7 @@ import { formatCurrency } from '../../utils/currency'
 
 const TYPE_LABELS = { cash: 'Cash', bank: 'Bank', credit: 'Credit card', ewallet: 'E-wallet' }
 
-export function AccountList({ accounts, balances, onEdit, onArchive }) {
+export function AccountList({ accounts, balances, onEdit, onAdjust, onArchive }) {
   return (
     <ul className="account-list">
       {accounts.map((account) => {
@@ -19,6 +19,15 @@ export function AccountList({ accounts, balances, onEdit, onArchive }) {
               {formatCurrency(balance)}
             </span>
             <div className="row-actions">
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={() => onAdjust(account)}
+                aria-label={`Adjust balance of ${account.name}`}
+                title="Adjust balance to match your bank"
+              >
+                <Icon name="repeat" size={16} />
+              </button>
               <button
                 type="button"
                 className="icon-btn"

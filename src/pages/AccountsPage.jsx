@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useAccounts } from '../features/accounts/useAccounts'
 import { AccountList } from '../features/accounts/AccountList'
 import { AccountForm } from '../features/accounts/AccountForm'
+import { AdjustBalanceForm } from '../features/accounts/AdjustBalanceForm'
 import { Modal } from '../components/Modal'
 import { Button } from '../components/Button'
 import { Spinner } from '../components/Spinner'
@@ -15,6 +16,7 @@ export function AccountsPage() {
     includeArchived: showArchived,
   })
   const [modalState, setModalState] = useState(null) // null | 'create' | account
+  const [adjusting, setAdjusting] = useState(null) // null | account
 
   const sorted = useMemo(() => [...accounts].sort((a, b) => a.name.localeCompare(b.name)), [accounts])
 
@@ -25,6 +27,11 @@ export function AccountsPage() {
       await addAccount(values)
     }
     setModalState(null)
+  }
+
+  async function handleAdjust(startingBalance) {
+    await editAccount(adjusting.id, { startingBalance })
+    setAdjusting(null)
   }
 
   return (
@@ -53,8 +60,20 @@ export function AccountsPage() {
           accounts={sorted}
           balances={balances}
           onEdit={setModalState}
+          onAdjust={setAdjusting}
           onArchive={(account) => setArchived(account.id, !account.archived)}
         />
+      )}
+
+      {adjusting && (
+        <Modal title="Adjust balance" onClose={() => setAdjusting(null)}>
+          <AdjustBalanceForm
+            account={adjusting}
+            currentBalance={balances[adjusting.id] ?? 0}
+            onSubmit={handleAdjust}
+            onCancel={() => setAdjusting(null)}
+          />
+        </Modal>
       )}
 
       {modalState && (
