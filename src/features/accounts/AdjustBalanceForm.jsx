@@ -5,7 +5,7 @@ import { formatCurrency } from '../../utils/currency'
 
 // Reconciles an account to its real bank balance by shifting the starting
 // balance by the difference; transactions are left untouched.
-export function AdjustBalanceForm({ account, currentBalance, onSubmit, onCancel }) {
+export function AdjustBalanceForm({ account, currentBalance, linkedDebt, onSubmit, onCancel }) {
   const [actual, setActual] = useState('')
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -14,7 +14,6 @@ export function AdjustBalanceForm({ account, currentBalance, onSubmit, onCancel 
   const hasValue = actual !== '' && Number.isFinite(actualNumber)
   const difference = hasValue ? actualNumber - currentBalance : 0
   const nextStarting = (Number(account.startingBalance) || 0) + difference
-  const isCredit = account.type === 'credit'
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -25,7 +24,9 @@ export function AdjustBalanceForm({ account, currentBalance, onSubmit, onCancel 
     setSubmitting(true)
     setError(null)
     try {
-      await onSubmit(Math.round(nextStarting * 100) / 100)
+      // A card linked to a debt takes its balance from the debt's available
+      // limit, so the real balance is saved there instead of as a starting balance.
+      await onSubmit(linkedDebt ? actualNumber : Math.round(nextStarting * 100) / 100)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -38,25 +39,27 @@ export function AdjustBalanceForm({ account, currentBalance, onSubmit, onCancel 
       <p className="field-hint">
         {account.name} currently shows <strong>{formatCurrency(currentBalance)}</strong> in the app.
       </p>
-      {isCredit && (
+      {linkedDebt && (
         <p className="field-hint">
-          If this card is linked to a debt, its balance comes from the debt&apos;s available limit — update that on
-          the Debts page instead.
+          This card is linked to the debt &quot;{linkedDebt.name}&quot;, so its balance is the debt&apos;s available
+          limit. Enter the available credit your bank shows.
         </p>
       )}
       <Field
         id="adjust-actual"
         type="number"
         step="0.01"
-        label="Real balance in your bank"
+        label={linkedDebt ? 'Available credit in your bank' : 'Real balance in your bank'}
         value={actual}
         onChange={(e) => setActual(e.target.value)}
         placeholder="0.00"
       />
       {hasValue && (
         <p className="field-hint">
-          Difference: {difference >= 0 ? '+' : '-'}{formatCurrency(Math.abs(difference))}. Starting balance will change
-          from {formatCurrency(account.startingBalance)} to {formatCurrency(nextStarting)}.
+          Difference: {difference >= 0 ? '+' : '-'}{formatCurrency(Math.abs(difference))}.{' '}
+          {linkedDebt
+            ? `Available limit will change from ${formatCurrency(currentBalance)} to ${formatCurrency(actualNumber)}.`
+            : `Starting balance will change from ${formatCurrency(account.startingBalance)} to ${formatCurrency(nextStarting)}.`}
         </p>
       )}
       {error && <p className="form-error">{error}</p>}

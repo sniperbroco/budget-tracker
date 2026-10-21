@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useAccounts } from '../features/accounts/useAccounts'
+import { useDebts } from '../features/debts/useDebts'
 import { AccountList } from '../features/accounts/AccountList'
 import { AccountForm } from '../features/accounts/AccountForm'
 import { AdjustBalanceForm } from '../features/accounts/AdjustBalanceForm'
@@ -12,9 +13,10 @@ import { ErrorBanner } from '../components/ErrorBanner'
 
 export function AccountsPage() {
   const [showArchived, setShowArchived] = useState(false)
-  const { accounts, balances, loading, error, addAccount, editAccount, setArchived } = useAccounts({
+  const { accounts, balances, loading, error, refresh, addAccount, editAccount, setArchived } = useAccounts({
     includeArchived: showArchived,
   })
+  const { debts, editDebt } = useDebts()
   const [modalState, setModalState] = useState(null) // null | 'create' | account
   const [adjusting, setAdjusting] = useState(null) // null | account
 
@@ -29,8 +31,17 @@ export function AccountsPage() {
     setModalState(null)
   }
 
-  async function handleAdjust(startingBalance) {
-    await editAccount(adjusting.id, { startingBalance })
+  const linkedDebt = adjusting
+    ? debts.find((debt) => debt.kind === 'credit_card' && debt.accountId === adjusting.id && !debt.archived)
+    : null
+
+  async function handleAdjust(value) {
+    if (linkedDebt) {
+      await editDebt(linkedDebt.id, { availableLimit: value })
+      await refresh()
+    } else {
+      await editAccount(adjusting.id, { startingBalance: value })
+    }
     setAdjusting(null)
   }
 
@@ -70,6 +81,7 @@ export function AccountsPage() {
           <AdjustBalanceForm
             account={adjusting}
             currentBalance={balances[adjusting.id] ?? 0}
+            linkedDebt={linkedDebt}
             onSubmit={handleAdjust}
             onCancel={() => setAdjusting(null)}
           />
