@@ -737,6 +737,10 @@
   color: var(--expense);
 }
 
+.transaction-amount-transfer {
+  color: var(--text-muted, inherit);
+}
+
 .row-actions {
   display: flex;
   gap: 2px;

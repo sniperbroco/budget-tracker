@@ -10,6 +10,7 @@ export function TransactionForm({ transaction, categories, accounts, fixedType, 
   const [type, setType] = useState(fixedType ?? transaction?.type ?? 'expense')
   const [categoryId, setCategoryId] = useState(transaction?.categoryId ?? '')
   const [accountId, setAccountId] = useState(transaction?.accountId ?? '')
+  const [toAccountId, setToAccountId] = useState(transaction?.toAccountId ?? '')
   const [amount, setAmount] = useState(transaction?.amount ?? '')
   const [notes, setNotes] = useState(transaction?.notes ?? '')
   const [tags, setTags] = useState(transaction?.tags ?? '')
@@ -23,8 +24,10 @@ export function TransactionForm({ transaction, categories, accounts, fixedType, 
     (category) => category.type === type && (!category.archived || category.id === categoryId),
   )
 
+  const isTransfer = type === 'transfer'
   const selectedAccount = accounts.find((account) => account.id === accountId)
-  const isCreditAccount = selectedAccount?.type === 'credit'
+  const isCreditAccount =
+    selectedAccount?.type === 'credit' || accounts.find((account) => account.id === toAccountId)?.type === 'credit'
 
   function handleTypeChange(nextType) {
     setType(nextType)
@@ -33,7 +36,7 @@ export function TransactionForm({ transaction, categories, accounts, fixedType, 
 
   async function handleSubmit(event) {
     event.preventDefault()
-    const nextErrors = validateTransaction({ date, type, categoryId, amount })
+    const nextErrors = validateTransaction({ date, type, categoryId, accountId, toAccountId, amount })
     setErrors(nextErrors)
     if (hasErrors(nextErrors)) return
 
@@ -43,8 +46,9 @@ export function TransactionForm({ transaction, categories, accounts, fixedType, 
       await onSubmit({
         date,
         type,
-        categoryId,
+        categoryId: isTransfer ? '' : categoryId,
         accountId,
+        toAccountId: isTransfer ? toAccountId : '',
         amount: Number(amount),
         notes: notes.trim(),
         tags,
@@ -68,6 +72,7 @@ export function TransactionForm({ transaction, categories, accounts, fixedType, 
       >
         <option value="expense">Expense</option>
         <option value="income">Income</option>
+        <option value="transfer">Transfer</option>
       </Select>
       <Field
         id="txn-date"
@@ -77,21 +82,53 @@ export function TransactionForm({ transaction, categories, accounts, fixedType, 
         onChange={(e) => setDate(e.target.value)}
         error={errors.date}
       />
-      <Select
-        id="txn-category"
-        label="Category"
-        value={categoryId}
-        onChange={(e) => setCategoryId(e.target.value)}
-        error={errors.categoryId}
-      >
-        <option value="" disabled>Choose a category…</option>
-        {availableCategories.map((category) => (
-          <option key={category.id} value={category.id}>
-            {category.name}{category.archived ? ' (archived)' : ''}
-          </option>
-        ))}
-      </Select>
-      {accounts.length > 0 && (
+      {!isTransfer && (
+        <Select
+          id="txn-category"
+          label="Category"
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+          error={errors.categoryId}
+        >
+          <option value="" disabled>Choose a category…</option>
+          {availableCategories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}{category.archived ? ' (archived)' : ''}
+            </option>
+          ))}
+        </Select>
+      )}
+      {isTransfer && (
+        <>
+          <Select
+            id="txn-account"
+            label="From account"
+            value={accountId}
+            onChange={(e) => setAccountId(e.target.value)}
+            error={errors.accountId}
+          >
+            <option value="" disabled>Choose an account…</option>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>{account.name}</option>
+            ))}
+          </Select>
+          <Select
+            id="txn-to-account"
+            label="To account"
+            value={toAccountId}
+            onChange={(e) => setToAccountId(e.target.value)}
+            error={errors.toAccountId}
+          >
+            <option value="" disabled>Choose an account…</option>
+            {accounts
+              .filter((account) => account.id !== accountId)
+              .map((account) => (
+                <option key={account.id} value={account.id}>{account.name}</option>
+              ))}
+          </Select>
+        </>
+      )}
+      {!isTransfer && accounts.length > 0 && (
         <Select
           id="txn-account"
           label="Account (optional)"

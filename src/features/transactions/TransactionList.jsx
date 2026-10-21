@@ -8,16 +8,24 @@ export function TransactionList({ transactions, categoriesById, accountsById, on
       {transactions.map((transaction) => {
         const category = categoriesById.get(transaction.categoryId)
         const account = accountsById.get(transaction.accountId)
+        const isTransfer = transaction.type === 'transfer'
+        const toAccount = accountsById.get(transaction.toAccountId)
         const tags = transaction.tags
           ? transaction.tags.split(',').map((tag) => tag.trim()).filter(Boolean)
           : []
         return (
           <li key={transaction.id} className="transaction-row">
-            <span className="category-swatch" style={{ backgroundColor: category?.color ?? '#9ca3af' }} />
+            <span className="category-swatch" style={{ backgroundColor: isTransfer ? '#9ca3af' : (category?.color ?? '#9ca3af') }} />
             <div className="transaction-main">
               <span className="transaction-category">
-                {category?.name ?? 'Uncategorized'}
-                {account ? <span className="transaction-account"> · {account.name}</span> : null}
+                {isTransfer ? 'Transfer' : (category?.name ?? 'Uncategorized')}
+                {isTransfer ? (
+                  <span className="transaction-account">
+                    {' · '}{account?.name ?? 'Unknown'} → {toAccount?.name ?? 'Unknown'}
+                  </span>
+                ) : account ? (
+                  <span className="transaction-account"> · {account.name}</span>
+                ) : null}
               </span>
               {transaction.notes && <span className="transaction-notes">{transaction.notes}</span>}
               {tags.length > 0 && (
@@ -31,7 +39,7 @@ export function TransactionList({ transactions, categoriesById, accountsById, on
             <div className="transaction-trailing">
               <span className="transaction-date">{formatDateLabel(transaction.date)}</span>
               <span className={`transaction-amount transaction-amount-${transaction.type}`}>
-                {transaction.type === 'expense' ? '-' : '+'}{formatCurrency(transaction.amount)}
+                {isTransfer ? '' : transaction.type === 'expense' ? '-' : '+'}{formatCurrency(transaction.amount)}
               </span>
               <div className="row-actions">
                 <button

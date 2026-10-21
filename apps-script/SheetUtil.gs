@@ -25,6 +25,14 @@ var SheetUtil = (function () {
     return sheet.getRange(1, 1, 1, lastColumn).getValues()[0]
   }
 
+  // Adds a header to the end of the tab if it isn't there yet, so a new
+  // field (e.g. toAccountId) works without hand-editing the spreadsheet.
+  function ensureColumn(sheetName, header) {
+    var sheet = getSheet(sheetName)
+    if (getHeaders(sheet).indexOf(header) !== -1) return
+    sheet.getRange(1, sheet.getLastColumn() + 1).setValue(header)
+  }
+
   // Every date/month value we write is a plain string (e.g. "2026-09-28" or
   // "2026-09"). Sheets' "Automatic" cell format silently reinterprets those
   // as real Date cells the moment they're written, which then read back as
@@ -150,6 +158,7 @@ var SheetUtil = (function () {
 
   return {
     getSpreadsheet: getSpreadsheet,
+    ensureColumn: ensureColumn,
     readAllRows: readAllRows,
     appendRow: appendRow,
     updateRowById: updateRowById,

@@ -27,6 +27,7 @@ export function TransactionFilters({ filters, categories, accounts, onChange }) 
         <option value="">All types</option>
         <option value="income">Income</option>
         <option value="expense">Expense</option>
+        <option value="transfer">Transfer</option>
       </Select>
       <Select
         label="Category"

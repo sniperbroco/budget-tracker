@@ -61,6 +61,7 @@ export function TransactionsPage() {
       { label: 'Type', value: (t) => t.type },
       { label: 'Category', value: (t) => categoriesById.get(t.categoryId)?.name ?? '' },
       { label: 'Account', value: (t) => accountsById.get(t.accountId)?.name ?? '' },
+      { label: 'To account', value: (t) => accountsById.get(t.toAccountId)?.name ?? '' },
       { label: 'Amount', value: (t) => t.amount },
       { label: 'Notes', value: (t) => t.notes ?? '' },
       { label: 'Tags', value: (t) => t.tags ?? '' },
@@ -87,7 +88,7 @@ export function TransactionsPage() {
       {loading ? (
         <Spinner />
       ) : transactions.length === 0 ? (
-        <EmptyState title="No transactions yet" description="Add your first income or expense to get started." />
+        <EmptyState title="No transactions yet" description="Add your first income, expense, or transfer to get started." />
       ) : (
         <TransactionList
           transactions={transactions}

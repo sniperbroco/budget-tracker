@@ -50,7 +50,7 @@ export function DashboardPage() {
       transactions.reduce(
         (acc, transaction) => {
           if (transaction.type === 'income') acc.income += transaction.amount
-          else acc.expense += transaction.amount
+          else if (transaction.type === 'expense') acc.expense += transaction.amount
           return acc
         },
         { income: 0, expense: 0 },
@@ -106,7 +106,7 @@ export function DashboardPage() {
       const bucket = totalsByMonth.get(key)
       if (!bucket) return
       if (transaction.type === 'income') bucket.income += transaction.amount
-      else bucket.expense += transaction.amount
+      else if (transaction.type === 'expense') bucket.expense += transaction.amount
     })
     return trendMonthKeys.map((key) => {
       const bucket = totalsByMonth.get(key)

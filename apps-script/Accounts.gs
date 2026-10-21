@@ -72,9 +72,16 @@ var Accounts = (function () {
     })
 
     transactions.forEach(function (transaction) {
+      var amount = Number(transaction.amount) || 0
+      if (transaction.type === 'transfer') {
+        var from = transaction.accountId
+        var to = transaction.toAccountId
+        if (from in totals && !linkedCreditCards[from]) totals[from] -= amount
+        if (to in totals && !linkedCreditCards[to]) totals[to] += amount
+        return
+      }
       if (!transaction.accountId || !(transaction.accountId in totals)) return
       if (linkedCreditCards[transaction.accountId]) return
-      var amount = Number(transaction.amount) || 0
       totals[transaction.accountId] += transaction.type === 'income' ? amount : -amount
     })
 
